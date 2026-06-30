@@ -541,20 +541,57 @@
       }
 
       function renderMistakes(typed, correct) {
-        const typedWords = typed.split(" ");
-        const correctWords = correct.split(" ");
-        const maxLen = Math.max(typedWords.length, correctWords.length);
-        let html = "";
-        for (let i = 0; i < maxLen; i++) {
-          const word = typedWords[i];
-          if (word === undefined) continue;
-          const isWrong = word !== correctWords[i];
-          const safe = escapeHtml(word) || "&nbsp;";
-          html += isWrong
-            ? `<span class="bad-word">${safe}</span>`
-            : `<span>${safe}</span>`;
-          if (i < maxLen - 1) html += " ";
+        const typedWords = typed.split(" ").filter((w) => w !== "");
+        const correctWords = correct.split(" ").filter((w) => w !== "");
+
+        // Standard LCS-based alignment so missing/extra words don't
+        // shift every later word out of sync.
+        const n = typedWords.length;
+        const m = correctWords.length;
+        const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+        for (let i = 1; i <= n; i++) {
+          for (let j = 1; j <= m; j++) {
+            dp[i][j] =
+              typedWords[i - 1] === correctWords[j - 1]
+                ? dp[i - 1][j - 1] + 1
+                : Math.max(dp[i - 1][j], dp[i][j - 1]);
+          }
         }
+
+        // Walk back through the table to build an ordered list of ops:
+        // 'match' (word correct), 'sub' (wrong word typed), 'missing' (word skipped)
+        const ops = [];
+        let i = n,
+          j = m;
+        while (i > 0 || j > 0) {
+          if (
+            i > 0 &&
+            j > 0 &&
+            typedWords[i - 1] === correctWords[j - 1]
+          ) {
+            ops.unshift({ type: "match", word: typedWords[i - 1] });
+            i--;
+            j--;
+          } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+            ops.unshift({ type: "missing" });
+            j--;
+          } else {
+            ops.unshift({ type: "sub", word: typedWords[i - 1] });
+            i--;
+          }
+        }
+
+        let html = "";
+        ops.forEach((op, idx) => {
+          if (op.type === "match") {
+            html += `<span>${escapeHtml(op.word)}</span>`;
+          } else if (op.type === "missing") {
+            html += `<span class="bad-word">_</span>`;
+          } else {
+            html += `<span class="bad-word">${escapeHtml(op.word)}</span>`;
+          }
+          if (idx < ops.length - 1) html += " ";
+        });
         answerDisplay.innerHTML = html;
       }
 
