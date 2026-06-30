@@ -184,8 +184,8 @@
       }
 
       .picture-card {
-        width: clamp(200px, 58vw, 380px);
-        height: clamp(200px, 58vw, 380px);
+        width: clamp(140px, 42vw, 260px);
+        height: clamp(140px, 42vw, 260px);
         background: var(--white);
         border-radius: clamp(14px, 3vw, 24px);
         border: 3px solid var(--sun);
@@ -193,7 +193,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 5%;
+        padding: 8%;
         position: relative;
         transition: transform 0.25s ease;
       }
@@ -237,61 +237,21 @@
 
       .answer-row {
         display: flex;
-        flex-direction: column;
         gap: 8px;
-        width: min(96vw, 560px);
-      }
-
-      .answer-stack {
-        position: relative;
-        width: 100%;
+        width: min(94vw, 420px);
       }
 
       .answer-input {
-        width: 100%;
+        flex: 1;
         font-family: "Chalkboard SE", "Comic Sans MS", cursive, sans-serif;
-        font-size: clamp(16px, 4.2vw, 24px);
+        font-size: clamp(14px, 3.5vw, 20px);
         font-weight: bold;
         color: var(--ocean-deep);
         background: var(--white);
         border: 3px solid var(--ocean);
         border-radius: 14px;
-        padding: 16px 18px;
+        padding: 10px 14px;
         outline: none;
-      }
-      .answer-input.is-hidden {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      .answer-display {
-        display: none;
-        width: 100%;
-        font-family: "Chalkboard SE", "Comic Sans MS", cursive, sans-serif;
-        font-size: clamp(16px, 4.2vw, 24px);
-        font-weight: bold;
-        color: var(--ocean-deep);
-        background: var(--white);
-        border: 3px solid var(--coral);
-        border-radius: 14px;
-        padding: 16px 18px;
-        cursor: text;
-      }
-      .answer-display.show {
-        display: block;
-      }
-      .answer-display .bad-word {
-        color: var(--coral);
-        text-decoration: underline;
-        text-decoration-color: var(--coral);
-        text-decoration-thickness: 3px;
-        text-underline-offset: 3px;
-      }
-
-      .submit-row {
-        display: flex;
-        justify-content: center;
       }
       .answer-input:focus {
         border-color: var(--coral);
@@ -425,21 +385,16 @@
           <img id="questionImg" src="" alt="object" />
         </div>
         <div class="answer-row">
-          <div class="answer-stack">
-            <input
-              class="answer-input"
-              id="answerInput"
-              type="text"
-              placeholder="Type the sentence..."
-              autocomplete="off"
-              autocapitalize="off"
-              spellcheck="false"
-            />
-            <div class="answer-display" id="answerDisplay"></div>
-          </div>
-          <div class="submit-row">
-            <button class="submit-btn" id="submitBtn">Check ✔️</button>
-          </div>
+          <input
+            class="answer-input"
+            id="answerInput"
+            type="text"
+            placeholder="Type the sentence..."
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+          />
+          <button class="submit-btn" id="submitBtn">Check ✔️</button>
         </div>
         <div class="feedback" id="feedback"></div>
       </div>
@@ -527,36 +482,10 @@
       const pictureCard = document.getElementById("pictureCard");
       const questionImg = document.getElementById("questionImg");
       const answerInput = document.getElementById("answerInput");
-      const answerDisplay = document.getElementById("answerDisplay");
       const submitBtn = document.getElementById("submitBtn");
       const feedback = document.getElementById("feedback");
       const progress = document.getElementById("progress");
       const overlay = document.getElementById("overlay");
-
-      function escapeHtml(str) {
-        return str
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;");
-      }
-
-      function renderMistakes(typed, correct) {
-        const typedWords = typed.split(" ");
-        const correctWords = correct.split(" ");
-        const maxLen = Math.max(typedWords.length, correctWords.length);
-        let html = "";
-        for (let i = 0; i < maxLen; i++) {
-          const word = typedWords[i];
-          if (word === undefined) continue;
-          const isWrong = word !== correctWords[i];
-          const safe = escapeHtml(word) || "&nbsp;";
-          html += isWrong
-            ? `<span class="bad-word">${safe}</span>`
-            : `<span>${safe}</span>`;
-          if (i < maxLen - 1) html += " ";
-        }
-        answerDisplay.innerHTML = html;
-      }
 
       function loadQuestion() {
         const q = gameQuestions[currentIndex];
@@ -566,8 +495,7 @@
         feedback.className = "feedback";
         pictureCard.classList.remove("correct", "wrong");
         answerInput.value = "";
-        answerInput.classList.remove("wrong-flash", "correct-flash", "is-hidden");
-        answerDisplay.classList.remove("show");
+        answerInput.classList.remove("wrong-flash", "correct-flash");
         locked = false;
         answerInput.focus();
       }
@@ -598,24 +526,16 @@
         } else {
           tries++;
           pictureCard.classList.add("wrong");
+          answerInput.classList.add("wrong-flash");
           feedback.textContent = "❌ Try again!";
           feedback.classList.add("wrong");
           playWrongSound();
 
-          renderMistakes(typed, correctAnswer);
-          answerInput.classList.add("is-hidden");
-          answerDisplay.classList.add("show");
-
           setTimeout(() => {
             pictureCard.classList.remove("wrong");
+            answerInput.classList.remove("wrong-flash");
           }, 400);
         }
-      }
-
-      function resumeTyping() {
-        answerInput.classList.remove("is-hidden");
-        answerDisplay.classList.remove("show");
-        answerInput.focus();
       }
 
       function showWin() {
@@ -637,7 +557,6 @@
       answerInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") checkAnswer();
       });
-      answerDisplay.addEventListener("click", resumeTyping);
       document.getElementById("resetBtn").addEventListener("click", newGame);
       document
         .getElementById("playAgainBtn")
