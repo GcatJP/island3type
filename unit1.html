@@ -507,7 +507,7 @@
     <div class="wrap">
       <div class="header">
         <a class="reset-btn" href="index.html">⬅️ Back</a>
-        <h1>Unit 2</h1>
+        <h1>Unit 1</h1>
         <button class="reset-btn" id="resetBtn">Play Again 🦜</button>
       </div>
 
@@ -544,10 +544,17 @@
     <div class="overlay show" id="introOverlay">
       <div class="win-card intro-card">
         <div class="example-label">Example</div>
-        <img id="introImg" src="images/marker.png" alt="marker" />
+        <img id="introImg" src="images/happy.png" alt="" />
         <div class="example-question-row">
-          <div class="example-question" id="introQuestion">Do you have a marker?</div>
-          <button class="speak-btn" id="speakBtn" aria-label="Hear the sentence" type="button">🔊</button>
+          <div class="example-question" id="introQuestion">I'm happy.</div>
+          <button
+            class="speak-btn"
+            id="speakBtn"
+            aria-label="Hear the sentence"
+            type="button"
+          >
+            🔊
+          </button>
         </div>
         <p>Type the matching sentence for each picture!</p>
         <button class="ok-btn" id="introOkBtn">OK</button>
@@ -556,7 +563,7 @@
 
     <div class="overlay" id="overlay">
       <div class="win-card">
-        <div class="win-emojis">🏆 Congratulations! 🏆</div>
+        <div class="win-emojis">🏆 Great! 🏆</div>
         <h2>You finished all the questions!</h2>
         <p id="winStats">Adventure Island</p>
         <button class="reset-btn" id="playAgainBtn">Play Again 🌴</button>
@@ -569,14 +576,14 @@
          popup, and it's always Question 1 in the game (not shuffled).
          The rest of the list is shuffled each playthrough. */
       const QUESTIONS = [
-        { img: "images/marker.png", answer: "Do you have a marker?" },
-        { img: "images/phone.png", answer: "Do you have a phone?" },
-        { img: "images/dice.png", answer: "Do you have a dice?" },
-        { img: "images/watch.png", answer: "Do you have a watch?" },
-        { img: "images/glue-stick.png", answer: "Do you have a glue stick?" },
-        { img: "images/umbrella.png", answer: "Do you have an umbrella?" },
-        { img: "images/camera.png", answer: "Do you have a camera?" },
-        { img: "images/glasses.png", answer: "Do you have glasses?" },
+        { img: "images/happy.png", answer: "I'm happy." },
+        { img: "images/hot1.png", answer: "I'm hot." },
+        { img: "images/cold.png", answer: "I'm cold." },
+        { img: "images/hungry.png", answer: "I'm hungry." },
+        { img: "images/tired.png", answer: "I'm tired." },
+        { img: "images/thirsty.png", answer: "I'm thirsty." },
+        { img: "images/sleepy.png", answer: "I'm sleepy." },
+        { img: "images/sick.png", answer: "I'm sick." },
       ];
 
       /* ---- audio ---- */
