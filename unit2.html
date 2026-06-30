@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Adventure Island Type-Up!</title>
+    <style>
+      :root {
+        --sand: #f6e3b4;
+        --sand-dark: #e8c988;
+        --ocean-deep: #0e6e6e;
+        --ocean: #1e97a0;
+        --ocean-light: #54c7c9;
+        --coral: #ff7b54;
+        --sun: #ffd23f;
+        --ink: #0b3d3a;
+        --white: #fffdf8;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100dvh;
+        overflow: hidden;
+        background: linear-gradient(180deg, #f4b23e 0%, #e47d31 60%);
+        font-family: "Trebuchet MS", "Verdana", sans-serif;
+        color: var(--ink);
+      }
+
+      /* decorative */
+      .sun {
+        position: absolute;
+        top: max(10px, env(safe-area-inset-top, 10px));
+        right: clamp(10px, 4vw, 40px);
+        width: clamp(40px, 8vw, 72px);
+        height: clamp(40px, 8vw, 72px);
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #ffefae, var(--sun) 70%);
+        box-shadow: 0 0 24px 8px rgba(255, 210, 63, 0.5);
+        pointer-events: none;
+        z-index: 0;
+      }
+      .cloud {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.82);
+        border-radius: 50px;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .cloud::before,
+      .cloud::after {
+        content: "";
+        position: absolute;
+        background: inherit;
+        border-radius: 50%;
+      }
+      .cloud1 {
+        top: 5%;
+        left: 5%;
+        width: 80px;
+        height: 26px;
+      }
+      .cloud1::before {
+        width: 40px;
+        height: 40px;
+        top: -18px;
+        left: 8px;
+      }
+      .cloud1::after {
+        width: 30px;
+        height: 30px;
+        top: -12px;
+        left: 42px;
+      }
+      .cloud2 {
+        top: 12%;
+        left: 55%;
+        width: 60px;
+        height: 20px;
+        opacity: 0.75;
+      }
+      .cloud2::before {
+        width: 30px;
+        height: 30px;
+        top: -14px;
+        left: 6px;
+      }
+      .cloud2::after {
+        width: 22px;
+        height: 22px;
+        top: -8px;
+        left: 32px;
+      }
+
+      /* layout */
+      .wrap {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100dvh;
+        padding: max(6px, env(safe-area-inset-top, 6px))
+          max(10px, env(safe-area-inset-right, 10px))
+          max(8px, env(safe-area-inset-bottom, 8px))
+          max(10px, env(safe-area-inset-left, 10px));
+        gap: 10px;
+      }
+
+      /* header row */
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        padding: 4px 0 6px;
+        gap: clamp(6px, 2vw, 14px);
+      }
+
+      h1 {
+        font-family: "Chalkboard SE", "Comic Sans MS", cursive, sans-serif;
+        font-size: clamp(16px, 5.5vw, 50px);
+        color: var(--sun);
+        -webkit-text-stroke: 1.5px var(--ocean-deep);
+        white-space: nowrap;
+      }
+
+      .pill {
+        background: var(--white);
+        border: 2.5px solid var(--ocean);
+        border-radius: 999px;
+        padding: 3px 9px;
+        font-weight: bold;
+        font-size: clamp(10px, 2vw, 14px);
+        white-space: nowrap;
+        color: var(--ocean-deep);
+      }
+
+      .reset-btn {
+        background: var(--coral);
+        color: var(--white);
+        border: none;
+        border-radius: 999px;
+        padding: 4px 12px;
+        font-size: clamp(10px, 2vw, 14px);
+        white-space: nowrap;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 3px 0 #c2522f;
+        font-family: inherit;
+        flex-shrink: 0;
+        text-decoration: none;
+      }
+      .reset-btn:active {
+        transform: translateY(2px);
+        box-shadow: none;
+      }
+
+      /* main play area */
+      .stage {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 0;
+        gap: clamp(10px, 2.5vh, 22px);
+      }
+
+      .progress {
+        font-family: "Chalkboard SE", "Comic Sans MS", cursive;
+        font-weight: bold;
+        color: var(--white);
+        -webkit-text-stroke: 0.5px var(--ocean-deep);
+        font-size: clamp(13px, 3vw, 20px);
+      }
+
+      .picture-card {
+        width: clamp(140px, 42vw, 260px);
+        height: clamp(140px, 42vw, 260px);
+        background: var(--white);
+        border-radius: clamp(14px, 3vw, 24px);
+        border: 3px solid var(--sun);
+        box-shadow: 0 6px 0 rgba(0, 0, 0, 0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8%;
+        position: relative;
+        transition: transform 0.25s ease;
+      }
+      .picture-card img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+      .picture-card.correct {
+        border-color: #5fd66a;
+        animation: glow 1s ease-in-out infinite alternate;
+      }
+      .picture-card.wrong {
+        animation: shake 0.4s;
+        border-color: var(--coral);
+      }
+      @keyframes glow {
+        from {
+          box-shadow:
+            0 0 6px 0 rgba(95, 214, 106, 0.6),
+            0 6px 0 rgba(0, 0, 0, 0.12);
+        }
+        to {
+          box-shadow:
+            0 0 18px 7px rgba(95, 214, 106, 0.85),
+            0 6px 0 rgba(0, 0, 0, 0.12);
+        }
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-8px);
+        }
+        75% {
+          transform: translateX(8px);
+        }
+      }
+
+      .answer-row {
+        display: flex;
+        gap: 8px;
+        width: min(94vw, 420px);
+      }
+
+      .answer-input {
+        flex: 1;
+        font-family: "Chalkboard SE", "Comic Sans MS", cursive, sans-serif;
+        font-size: clamp(14px, 3.5vw, 20px);
+        font-weight: bold;
+        color: var(--ocean-deep);
+        background: var(--white);
+        border: 3px solid var(--ocean);
+        border-radius: 14px;
+        padding: 10px 14px;
+        outline: none;
+      }
+      .answer-input:focus {
+        border-color: var(--coral);
+      }
+      .answer-input.wrong-flash {
+        border-color: var(--coral);
+        animation: shake 0.4s;
+      }
+      .answer-input.correct-flash {
+        border-color: #5fd66a;
+      }
+
+      .submit-btn {
+        background: var(--ocean-deep);
+        color: var(--white);
+        border: none;
+        border-radius: 14px;
+        padding: 10px 18px;
+        font-family: inherit;
+        font-weight: bold;
+        font-size: clamp(13px, 3vw, 17px);
+        cursor: pointer;
+        box-shadow: 0 3px 0 #073533;
+        white-space: nowrap;
+      }
+      .submit-btn:active {
+        transform: translateY(2px);
+        box-shadow: none;
+      }
+
+      .feedback {
+        min-height: 22px;
+        font-family: "Chalkboard SE", "Comic Sans MS", cursive;
+        font-weight: bold;
+        font-size: clamp(13px, 3vw, 18px);
+      }
+      .feedback.correct {
+        color: #ffffff;
+        -webkit-text-stroke: 0.5px #1d7a2c;
+      }
+      .feedback.wrong {
+        color: var(--white);
+        -webkit-text-stroke: 0.5px #a23a1c;
+      }
+
+      .rotate-msg {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: var(--ocean-deep);
+        color: var(--white);
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        z-index: 100;
+        font-weight: bold;
+        font-size: 18px;
+        padding: 20px;
+      }
+      @media (orientation: landscape) and (max-height: 480px) {
+        .rotate-msg {
+          display: flex;
+        }
+      }
+      @media (orientation: portrait) {
+        .rotate-msg {
+          display: none;
+        }
+      }
+
+      /* win overlay */
+      .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 61, 58, 0.72);
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+        padding: 20px;
+      }
+      .overlay.show {
+        display: flex;
+      }
+      .win-card {
+        background: var(--white);
+        border-radius: 24px;
+        padding: clamp(20px, 5vw, 36px);
+        text-align: center;
+        max-width: 360px;
+        width: 100%;
+        box-shadow: 0 10px 0 rgba(0, 0, 0, 0.15);
+        border: 4px solid var(--sun);
+      }
+      .win-card h2 {
+        font-family: "Chalkboard SE", "Comic Sans MS", cursive;
+        color: var(--coral);
+        -webkit-text-stroke: 1px var(--ocean-deep);
+        font-size: clamp(22px, 5.5vw, 30px);
+        margin: 0 0 8px;
+      }
+      .win-card p {
+        font-weight: bold;
+        color: var(--ocean-deep);
+        margin-bottom: 16px;
+      }
+      .win-emojis {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rotate-msg">
+      <p>🔄 Please rotate your device to portrait mode!</p>
+    </div>
+    <div class="sun"></div>
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+
+    <div class="wrap">
+      <div class="header">
+        <a class="reset-btn" href="index.html">⬅️ Back</a>
+        <h1>Unit 2</h1>
+        <button class="reset-btn" id="resetBtn">Play Again 🦜</button>
+      </div>
+
+      <div class="stage">
+        <div class="progress" id="progress">Question 1 of 8</div>
+        <div class="picture-card" id="pictureCard">
+          <img id="questionImg" src="" alt="object" />
+        </div>
+        <div class="answer-row">
+          <input
+            class="answer-input"
+            id="answerInput"
+            type="text"
+            placeholder="Type the sentence..."
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+          />
+          <button class="submit-btn" id="submitBtn">Check ✔️</button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlay">
+      <div class="win-card">
+        <div class="win-emojis">🏆 Congratulations! 🏆</div>
+        <h2>You finished all the questions!</h2>
+        <p id="winStats">Adventure Island</p>
+        <button class="reset-btn" id="playAgainBtn">Play Again 🌴</button>
+      </div>
+    </div>
+
+    <script>
+      /* ---- QUESTIONS — replace image paths with your real files ---- */
+      const QUESTIONS = [
+        { img: "images/marker.png", answer: "I have a marker." },
+        { img: "images/phone.png", answer: "I have a phone." },
+        { img: "images/dice.png", answer: "I have a dice." },
+        { img: "images/watch.png", answer: "I have a watch." },
+        { img: "images/glue-stick.png", answer: "I have a glue stick." },
+        { img: "images/umbrella.png", answer: "I have an umbrella." },
+        { img: "images/camera.png", answer: "I have a camera." },
+        { img: "images/glasses.png", answer: "I have glasses." },
+      ];
+
+      /* ---- audio ---- */
+      let audioCtx = null;
+      function getCtx() {
+        if (!audioCtx)
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        return audioCtx;
+      }
+      function playTone(freq, startTime, duration, gainPeak) {
+        const ctx = getCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        gain.gain.setValueAtTime(0, startTime);
+        gain.gain.linearRampToValueAtTime(gainPeak, startTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        osc.start(startTime);
+        osc.stop(startTime + duration + 0.02);
+      }
+      function playMatchJingle() {
+        const ctx = getCtx(),
+          now = ctx.currentTime;
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, i) =>
+          playTone(f, now + i * 0.09, 0.22, 0.22),
+        );
+      }
+      function playWrongSound() {
+        const ctx = getCtx(),
+          now = ctx.currentTime;
+        playTone(220, now, 0.18, 0.12);
+        playTone(196, now + 0.08, 0.18, 0.1);
+      }
+      function playWinFanfare() {
+        const ctx = getCtx(),
+          now = ctx.currentTime;
+        [523.25, 523.25, 659.25, 783.99, 1046.5, 1318.51].forEach((f, i) =>
+          playTone(f, now + [0, 0.15, 0.3, 0.45, 0.6, 0.8][i], 0.3, 0.22),
+        );
+      }
+
+      function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+
+      /* ---- game state ---- */
+      let gameQuestions = [];
+      let currentIndex = 0;
+      let tries = 0;
+      let locked = false;
+
+      const pictureCard = document.getElementById("pictureCard");
+      const questionImg = document.getElementById("questionImg");
+      const answerInput = document.getElementById("answerInput");
+      const submitBtn = document.getElementById("submitBtn");
+      const feedback = document.getElementById("feedback");
+      const progress = document.getElementById("progress");
+      const overlay = document.getElementById("overlay");
+
+      function loadQuestion() {
+        const q = gameQuestions[currentIndex];
+        questionImg.src = q.img;
+        progress.textContent = `Question ${currentIndex + 1} of ${gameQuestions.length}`;
+        feedback.textContent = "";
+        feedback.className = "feedback";
+        pictureCard.classList.remove("correct", "wrong");
+        answerInput.value = "";
+        answerInput.classList.remove("wrong-flash", "correct-flash");
+        locked = false;
+        answerInput.focus();
+      }
+
+      function checkAnswer() {
+        if (locked) return;
+        getCtx();
+        const typed = answerInput.value;
+        const correctAnswer = gameQuestions[currentIndex].answer;
+
+        if (typed === correctAnswer) {
+          locked = true;
+          tries++;
+          pictureCard.classList.add("correct");
+          answerInput.classList.add("correct-flash");
+          feedback.textContent = "🎉 That's right!";
+          feedback.classList.add("correct");
+          playMatchJingle();
+
+          setTimeout(() => {
+            currentIndex++;
+            if (currentIndex >= gameQuestions.length) {
+              showWin();
+            } else {
+              loadQuestion();
+            }
+          }, 1000);
+        } else {
+          tries++;
+          pictureCard.classList.add("wrong");
+          answerInput.classList.add("wrong-flash");
+          feedback.textContent = "❌ Try again!";
+          feedback.classList.add("wrong");
+          playWrongSound();
+
+          setTimeout(() => {
+            pictureCard.classList.remove("wrong");
+            answerInput.classList.remove("wrong-flash");
+          }, 400);
+        }
+      }
+
+      function showWin() {
+        document.getElementById("winStats").textContent =
+          `You answered all ${gameQuestions.length} questions in ${tries} tries!`;
+        overlay.classList.add("show");
+        playWinFanfare();
+      }
+
+      function newGame() {
+        gameQuestions = shuffle(QUESTIONS);
+        currentIndex = 0;
+        tries = 0;
+        overlay.classList.remove("show");
+        loadQuestion();
+      }
+
+      submitBtn.addEventListener("click", checkAnswer);
+      answerInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") checkAnswer();
+      });
+      document.getElementById("resetBtn").addEventListener("click", newGame);
+      document
+        .getElementById("playAgainBtn")
+        .addEventListener("click", newGame);
+
+      newGame();
+    </script>
+  </body>
+</html>
