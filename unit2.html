@@ -180,7 +180,7 @@
         font-weight: bold;
         color: var(--white);
         -webkit-text-stroke: 0.5px var(--ocean-deep);
-        font-size: clamp(13px, 3vw, 20px);
+        font-size: clamp(13px, 4.5vw, 30px);
       }
 
       .picture-card {
@@ -548,7 +548,9 @@
         // shift every later word out of sync.
         const n = typedWords.length;
         const m = correctWords.length;
-        const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+        const dp = Array.from({ length: n + 1 }, () =>
+          new Array(m + 1).fill(0),
+        );
         for (let i = 1; i <= n; i++) {
           for (let j = 1; j <= m; j++) {
             dp[i][j] =
@@ -564,11 +566,7 @@
         let i = n,
           j = m;
         while (i > 0 || j > 0) {
-          if (
-            i > 0 &&
-            j > 0 &&
-            typedWords[i - 1] === correctWords[j - 1]
-          ) {
+          if (i > 0 && j > 0 && typedWords[i - 1] === correctWords[j - 1]) {
             ops.unshift({ type: "match", word: typedWords[i - 1] });
             i--;
             j--;
@@ -603,7 +601,11 @@
         feedback.className = "feedback";
         pictureCard.classList.remove("correct", "wrong");
         answerInput.value = "";
-        answerInput.classList.remove("wrong-flash", "correct-flash", "is-hidden");
+        answerInput.classList.remove(
+          "wrong-flash",
+          "correct-flash",
+          "is-hidden",
+        );
         answerDisplay.classList.remove("show");
         locked = false;
         answerInput.focus();
